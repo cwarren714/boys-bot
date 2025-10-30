@@ -27,7 +27,7 @@ function timestamp() {
 }
 
 function canonicalKeyFromNames(names) {
-    return names.slice().sort().join('+');
+    return names.slice().sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' })).join('+');
 }
 
 function trimStatus(text) {
