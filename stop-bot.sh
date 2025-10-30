@@ -1,12 +1,25 @@
 #!/bin/bash
 
-# Configuration
-BOT_DIR="/Users/chand/dev_repos/boys-bot"
-PID_FILE="$BOT_DIR/bot.pid"
+# get cwd
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# source .env file
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    export $(grep -v '^#' "$SCRIPT_DIR/.env" | grep -E '^(BOT_SCRIPT|PID_FILE)=' | xargs)
+else
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: .env file not found"
+    exit 1
+fi
+
+# validate required variables
+if [ -z "$BOT_SCRIPT" ] || [ -z "$PID_FILE" ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: Required environment variables not set in .env"
+    exit 1
+fi
 
 if [ ! -f "$PID_FILE" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] No PID file found, trying to find process..."
-    PID=$(pgrep -f "voice-rename-bot.js")
+    PID=$(pgrep -f "$BOT_SCRIPT")
     if [ -z "$PID" ]; then
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Bot is not running"
         exit 0

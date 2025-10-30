@@ -1,10 +1,21 @@
 #!/bin/bash
 
-# config
-BOT_DIR=""
-BOT_SCRIPT="voice-rename-bot.js"
-LOG_FILE="$BOT_DIR/bot.log"
-PID_FILE="$BOT_DIR/bot.pid"
+# get cwd
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# source .env file
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    export $(grep -v '^#' "$SCRIPT_DIR/.env" | grep -E '^(BOT_DIR|BOT_SCRIPT|LOG_FILE|PID_FILE)=' | xargs)
+else
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: .env file not found"
+    exit 1
+fi
+
+# validate required variables
+if [ -z "$BOT_DIR" ] || [ -z "$BOT_SCRIPT" ] || [ -z "$LOG_FILE" ] || [ -z "$PID_FILE" ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: Required environment variables not set in .env"
+    exit 1
+fi
 
 if [ -f "$PID_FILE" ]; then
     PID=$(cat "$PID_FILE")
